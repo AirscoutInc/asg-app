@@ -219,11 +219,16 @@ data "aws_ami" "app_ami" {
   }
 }
 
+// Assume this role exists for now. If we need more flexibility in the future this should be passed in as a variable.
+data "aws_iam_instance_profile" "grid_processor" {
+  name = "GridProcessor"
+}
+
 resource "aws_launch_configuration" "grid-processing" {
   # Don't specify a name here so terraform can safely update the launch config
   image_id             = "${data.aws_ami.app_ami.id}"
   instance_type        = "${var.instance_type}"
-  iam_instance_profile = "${data.terraform_remote_state.global.instance_profile_grid_processor}"
+  iam_instance_profile = "${aws_iam_instance_profile.grid_processor.id}"
   enable_monitoring    = false
 
   # Security group
