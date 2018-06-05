@@ -58,10 +58,6 @@ resource "aws_cloudwatch_metric_alarm" "add-capacity-sqs" {
   }
 
   alarm_actions     = ["${aws_autoscaling_policy.increase-grid-processing.arn}"]
-
-  tags {
-    Namespace = "${var.namespace}"
-  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "remove-capacity-sqs" {
@@ -80,10 +76,6 @@ resource "aws_cloudwatch_metric_alarm" "remove-capacity-sqs" {
   }
 
   alarm_actions     = ["${aws_autoscaling_policy.decrease-grid-processing.arn}"]
-
-  tags {
-    Namespace = "${var.namespace}"
-  }
 }
 
 resource "aws_autoscaling_group" "grid-processing" {
