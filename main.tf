@@ -210,10 +210,6 @@ resource "aws_autoscaling_policy" "increase-grid-processing" {
   adjustment_type        = "ChangeInCapacity"
   cooldown               = "${var.asg_cooldown}"
   autoscaling_group_name = "${aws_autoscaling_group.grid-processing.name}"
-  
-  tags {
-    Namespace = "${var.namespace}"
-  }
 }
 
 resource "aws_autoscaling_policy" "decrease-grid-processing" {
@@ -222,10 +218,6 @@ resource "aws_autoscaling_policy" "decrease-grid-processing" {
   adjustment_type        = "ChangeInCapacity"
   cooldown               = "${var.asg_cooldown / 2}"
   autoscaling_group_name = "${aws_autoscaling_group.grid-processing.name}"
-
-  tags {
-    Namespace = "${var.namespace}"
-  }
 }
 
 data "aws_ami" "app_ami" {
@@ -280,9 +272,5 @@ resource "aws_launch_configuration" "grid-processing" {
 
   lifecycle {
     create_before_destroy = true
-  }
-
-  tags {
-    Namespace = "${var.namespace}"
   }
 }
