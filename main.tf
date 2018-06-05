@@ -228,7 +228,7 @@ resource "aws_launch_configuration" "grid-processing" {
   # Don't specify a name here so terraform can safely update the launch config
   image_id             = "${data.aws_ami.app_ami.id}"
   instance_type        = "${var.instance_type}"
-  iam_instance_profile = "${aws_iam_instance_profile.grid_processor.id}"
+  iam_instance_profile = "${data.aws_iam_instance_profile.grid_processor.id}"
   enable_monitoring    = false
 
   # Security group
