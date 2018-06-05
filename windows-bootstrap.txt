@@ -1,0 +1,4 @@
+<powershell>
+aws s3 cp s3://airscout-sw-builds/windows/scripts/setup-env.ps1 c:\setup-env.ps1
+c:\setup-env.ps1 >c:\setup-env.log 2>&1
+</powershell>
