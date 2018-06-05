@@ -1,6 +1,6 @@
 resource "aws_sqs_queue" "command_queue_out" {
   count           = "${var.scaling_strategy == "scalr" && var.queue_name != "" ? 1 : 0}"
-  name            = "${format("%s_%s_out-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
+  name            = "${format("%s%s_out-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
   fifo_queue      = "${var.fifo_queue}"
   redrive_policy  = "${data.template_file.redrive_policy.rendered}"
   receive_wait_time_seconds = 0
@@ -8,7 +8,7 @@ resource "aws_sqs_queue" "command_queue_out" {
 
 resource "aws_sqs_queue" "command_queue_deadletter" {
   count       = "${var.queue_name != "" ? 1 : 0}"
-  name        = "${format("%s_%s_deadletter-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
+  name        = "${format("%s%s_deadletter-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
   fifo_queue  = "${var.fifo_queue}"
 }
 
@@ -23,7 +23,7 @@ data "template_file" "redrive_policy" {
 
 resource "aws_sqs_queue" "command_queue" {
   count           = "${var.queue_name != "" ? 1 : 0}"
-  name            = "${format("%s_%s-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
+  name            = "${format("%s%s-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
   redrive_policy  = "${var.scaling_strategy == "scalr" && var.queue_name != "" ? "" : data.template_file.redrive_policy.rendered}"
   fifo_queue      = "${var.fifo_queue}"
   receive_wait_time_seconds = 0
@@ -32,7 +32,7 @@ resource "aws_sqs_queue" "command_queue" {
 
 resource "aws_cloudwatch_metric_alarm" "add-capacity-sqs" {
   count               = "${var.scaling_strategy != "scalr" && var.queue_name != "" ? 1 : 0}"
-  alarm_name          = "${var.namespace}AddCapacityFor${var.task_name}Jobs-${aws_sqs_queue.command_queue.name}-${var.env}"
+  alarm_name          = "AddCapacityFor${var.task_name}Jobs${var.namespace}-${aws_sqs_queue.command_queue.name}-${var.env}"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "1"
   metric_name         = "ApproximateNumberOfMessagesVisible"
