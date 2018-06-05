@@ -4,12 +4,20 @@ resource "aws_sqs_queue" "command_queue_out" {
   fifo_queue      = "${var.fifo_queue}"
   redrive_policy  = "${data.template_file.redrive_policy.rendered}"
   receive_wait_time_seconds = 0
+
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 resource "aws_sqs_queue" "command_queue_deadletter" {
   count       = "${var.queue_name != "" ? 1 : 0}"
   name        = "${format("%s%s_deadletter-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
   fifo_queue  = "${var.fifo_queue}"
+  
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 data "template_file" "redrive_policy" {
@@ -28,6 +36,10 @@ resource "aws_sqs_queue" "command_queue" {
   fifo_queue      = "${var.fifo_queue}"
   receive_wait_time_seconds = 0
   content_based_deduplication = "${var.fifo_queue}"
+
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "add-capacity-sqs" {
@@ -46,6 +58,10 @@ resource "aws_cloudwatch_metric_alarm" "add-capacity-sqs" {
   }
 
   alarm_actions     = ["${aws_autoscaling_policy.increase-grid-processing.arn}"]
+
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 resource "aws_cloudwatch_metric_alarm" "remove-capacity-sqs" {
@@ -64,6 +80,10 @@ resource "aws_cloudwatch_metric_alarm" "remove-capacity-sqs" {
   }
 
   alarm_actions     = ["${aws_autoscaling_policy.decrease-grid-processing.arn}"]
+
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 resource "aws_autoscaling_group" "grid-processing" {
@@ -176,6 +196,12 @@ resource "aws_autoscaling_group" "grid-processing" {
     value               = "${var.jvm_initial}"
     propagate_at_launch = "true"
   }
+
+  tag {
+    key                 = "Namespace"
+    value               = "${var.namespace}"
+    propagate_at_launch = "true"
+  }
 }
 
 resource "aws_autoscaling_policy" "increase-grid-processing" {
@@ -184,6 +210,10 @@ resource "aws_autoscaling_policy" "increase-grid-processing" {
   adjustment_type        = "ChangeInCapacity"
   cooldown               = "${var.asg_cooldown}"
   autoscaling_group_name = "${aws_autoscaling_group.grid-processing.name}"
+  
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 resource "aws_autoscaling_policy" "decrease-grid-processing" {
@@ -192,6 +222,10 @@ resource "aws_autoscaling_policy" "decrease-grid-processing" {
   adjustment_type        = "ChangeInCapacity"
   cooldown               = "${var.asg_cooldown / 2}"
   autoscaling_group_name = "${aws_autoscaling_group.grid-processing.name}"
+
+  tags {
+    Namespace = "${var.namespace}"
+  }
 }
 
 data "aws_ami" "app_ami" {
@@ -228,7 +262,7 @@ resource "aws_launch_configuration" "grid-processing" {
   # Don't specify a name here so terraform can safely update the launch config
   image_id             = "${data.aws_ami.app_ami.id}"
   instance_type        = "${var.instance_type}"
-  iam_instance_profile = "${data.aws_iam_instance_profile.grid_processor.id}"
+  iam_instance_profile = "${data.aws_iam_instance_profile.grid_processor.role_name}"
   enable_monitoring    = false
 
   # Security group
@@ -246,5 +280,9 @@ resource "aws_launch_configuration" "grid-processing" {
 
   lifecycle {
     create_before_destroy = true
+  }
+
+  tags {
+    Namespace = "${var.namespace}"
   }
 }
