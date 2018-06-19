@@ -79,7 +79,7 @@ resource "aws_cloudwatch_metric_alarm" "remove-capacity-sqs" {
 }
 
 resource "aws_autoscaling_group" "grid-processing" {
-  name                 = "GridProcessor${var.task_name}${var.namespace}-${var.env}"
+  name                 = "${var.task_name}${var.namespace}-${var.env}"
   max_size             = "${var.asg_max}"
   min_size             = "${var.asg_min}"
   #desired_capacity     = "${var.asg_desired}"
