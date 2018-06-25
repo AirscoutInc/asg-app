@@ -152,3 +152,8 @@ variable "jvm_max" {
 variable "jvm_initial" {
   default = ""
 }
+
+variable "queue_grant_account_id" { 
+  description = "Additional accounts to grant access to the command queue"
+  default = "" 
+}

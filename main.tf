@@ -42,6 +42,28 @@ resource "aws_sqs_queue" "command_queue" {
   }
 }
 
+resource "aws_sqs_queue_policy" "cross_account_access" {
+  count = "${var.queue_grant_account_id != "" ? 1 : 0}"
+  queue_url = "${aws_sqs_queue.command_queue.id}"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "sqspolicy",
+  "Statement": [
+    {
+      "Sid": "First",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${var.queue_grant_account_id}:root"
+      },
+      "Action": "SQS:SendMessage",
+      "Resource": "${aws_sqs_queue.command_queue.id}"
+    }
+  ]
+}
+POLICY
+}
+
 resource "aws_cloudwatch_metric_alarm" "add-capacity-sqs" {
   count               = "${var.scaling_strategy != "scalr" && var.queue_name != "" ? 1 : 0}"
   alarm_name          = "AddCapacityFor${var.task_name}Jobs${var.namespace}-${aws_sqs_queue.command_queue.name}-${var.env}"
