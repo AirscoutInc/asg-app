@@ -57,7 +57,7 @@ resource "aws_sqs_queue_policy" "cross_account_access" {
         "AWS": "arn:aws:iam::${var.queue_grant_account_id}"
       },
       "Action": "SQS:*",
-      "Resource": "${aws_sqs_queue.command_queue.id}"
+      "Resource": "${aws_sqs_queue.command_queue.arn}"
     }
   ]
 }
