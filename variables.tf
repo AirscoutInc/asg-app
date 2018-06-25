@@ -154,6 +154,6 @@ variable "jvm_initial" {
 }
 
 variable "queue_grant_account_id" { 
-  description = "Additional accounts to grant access to the command queue"
+  description = "Additional account/user to grant access to the command queue. e.g. 578040709669:user/app"
   default = "" 
 }

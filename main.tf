@@ -54,7 +54,7 @@ resource "aws_sqs_queue_policy" "cross_account_access" {
       "Sid": "First",
       "Effect": "Allow",
       "Principal": {
-        "AWS": "${var.queue_grant_account_id}"
+        "AWS": "arn:aws:iam::${var.queue_grant_account_id}"
       },
       "Action": "SQS:*",
       "Resource": "${aws_sqs_queue.command_queue.id}"
