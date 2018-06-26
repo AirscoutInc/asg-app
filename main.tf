@@ -10,6 +10,28 @@ resource "aws_sqs_queue" "command_queue_out" {
   }
 }
 
+resource "aws_sqs_queue_policy" "cross_account_access_out" {
+  count = "${var.queue_grant_account_id != "" ? 1 : 0}"
+  queue_url = "${aws_sqs_queue.command_queue_out.id}"
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "sqspolicy",
+  "Statement": [
+    {
+      "Sid": "First",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::${var.queue_grant_account_id}"
+      },
+      "Action": "SQS:*",
+      "Resource": "${aws_sqs_queue.command_queue_out.arn}"
+    }
+  ]
+}
+POLICY
+}
+
 resource "aws_sqs_queue" "command_queue_deadletter" {
   count       = "${var.queue_name != "" ? 1 : 0}"
   name        = "${format("%s%s_deadletter-%s%s", var.namespace, var.queue_name, var.env, var.fifo_queue == "true" ? ".fifo" : "")}"
