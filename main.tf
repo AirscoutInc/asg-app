@@ -258,6 +258,7 @@ resource "aws_autoscaling_policy" "decrease-grid-processing" {
 
 data "aws_ami" "app_ami" {
   most_recent      = true
+  owners           = ["573707351475"]
   //executable_users = ["self"]
 
   filter {
