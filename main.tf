@@ -132,6 +132,7 @@ resource "aws_autoscaling_group" "grid-processing" {
   launch_configuration = "${aws_launch_configuration.grid-processing.name}"
   vpc_zone_identifier  = ["${split(",", var.subnet)}"]
   enabled_metrics = ["GroupInServiceInstances", "GroupDesiredCapacity", "GroupPendingInstances"]
+  suspended_processes = ["AZRebalance"]
 
   # so we can manually control scale-in
   protect_from_scale_in = "${var.scaling_strategy == "scalr" ? true : false}"
